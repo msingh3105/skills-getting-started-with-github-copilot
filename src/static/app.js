@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const activitySelect = document.getElementById("activity");
   const signupForm = document.getElementById("signup-form");
   const messageDiv = document.getElementById("message");
+  const activityCardTemplate = document.getElementById("activity-card-template");
 
   // Function to fetch activities from API
   async function fetchActivities() {
@@ -15,19 +16,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Populate activities list
       Object.entries(activities).forEach(([name, details]) => {
-        const activityCard = document.createElement("div");
-        activityCard.className = "activity-card";
+        const card = activityCardTemplate.content.cloneNode(true);
+        card.querySelector(".activity-name").textContent = name;
+        card.querySelector(".activity-description").textContent = details.description;
+        card.querySelector(".activity-schedule").textContent = `Schedule: ${details.schedule}`;
 
-        const spotsLeft = details.max_participants - details.participants.length;
+        const participantsList = card.querySelector(".participants-list");
+        if (details.participants.length > 0) {
+          details.participants.forEach((participant) => {
+            const li = document.createElement("li");
+            li.textContent = participant;
+            participantsList.appendChild(li);
+          });
+        } else {
+          const li = document.createElement("li");
+          li.textContent = "No participants yet.";
+          participantsList.appendChild(li);
+        }
 
-        activityCard.innerHTML = `
-          <h4>${name}</h4>
-          <p>${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
-        `;
-
-        activitiesList.appendChild(activityCard);
+        activitiesList.appendChild(card);
 
         // Add option to select dropdown
         const option = document.createElement("option");
